@@ -1,6 +1,6 @@
 # go_service
 
-Learnig how code a GO service and deploy in Kubernetes
+Learning how code to a service in GO and deploy it in Kubernetes.
 
 
 
