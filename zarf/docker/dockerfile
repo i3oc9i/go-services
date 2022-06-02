@@ -13,7 +13,6 @@ ARG BUILD_VERSION
 ARG BUILD_DATE
 COPY --from=build-go_service /go_service/go_service /go_service/go_service 
 WORKDIR /go_service
-USER go_service
 CMD ["./go_service"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
