@@ -26,9 +26,11 @@ mod-update:
 	go mod tidy
 	go mod vendor
 
+# ------------------------------------------------------------------- Run
+
 # ------------------------------------------------------------------- K3D
 k3d-create:
-	k3d cluster create $(KLUSTER_NAME) --config ./zarf/kubernetes/k3d/k3d-config.yaml
+	k3d cluster create $(KLUSTER_NAME) --config ./zarf/k3d/config.yaml
 
 k3d-start:
 	k3d cluster start $(KLUSTER_NAME) 
