@@ -1,0 +1,25 @@
+FROM golang:1.18 as build-go_service
+ENV CGO_ENABLED 0
+ARG BUILD_VERSION
+
+COPY . /go_service
+
+WORKDIR /go_service
+RUN go build --ldflags "-X main.build=$(BUILD_VERSION)"
+
+
+FROM alpine:3.15
+ARG BUILD_VERSION
+ARG BUILD_DATE
+COPY --from=build-go_service /go_service/go_service /go_service/go_service 
+WORKDIR /go_service
+USER go_service
+CMD ["./go_service"]
+
+LABEL org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="go_service" \
+      org.opencontainers.image.authors="i3oc9i <i3oc9i@gmail.com>" \
+      org.opencontainers.image.source="https://github.com/i3oc9i/go_service/" \
+      org.opencontainers.image.revision="${BUILD_VERSION}" \
+      org.opencontainers.image.vendor="i3oc9i"
+
