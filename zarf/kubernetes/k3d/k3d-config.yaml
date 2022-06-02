@@ -1,0 +1,7 @@
+apiVersion: k3d.io/v1alpha4 
+kind: Simple 
+metadata:
+  name: local 
+servers: 1 
+agents: 2  
+image: rancher/k3s:v1.22.7-k3s1
