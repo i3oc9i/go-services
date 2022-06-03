@@ -1,9 +1,10 @@
 SHELL := /bin/bash
 
+KLUSTER_NAME=local
+REGISTRY=registry.localhost:5000
+
 APP=go-service
 ARCH=amd64
-
-KLUSTER_NAME=local
 
 BUILD_VERSION := $(shell cat ./VERSION)
 BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
@@ -17,16 +18,23 @@ build:
 docker-build:
 	docker build \
     	-f zarf/docker/dockerfile \
-    	-t $(APP)-$(ARCH):"$(BUILD_VERSION)" \
-    	--build-arg BUILD_VERSION="$(BUILD_VERSION)" \
-    	--build-arg BUILD_DATE="$(BUILD_DATE)" \
+    	-t $(APP)-$(ARCH):$(BUILD_VERSION) \
+    	--build-arg BUILD_VERSION=$(BUILD_VERSION) \
+    	--build-arg BUILD_DATE=$(BUILD_DATE) \
 		.
+	docker tag $(APP)-$(ARCH):$(BUILD_VERSION) $(REGISTRY)/$(APP)-$(ARCH):$(BUILD_VERSION)
+	docker push $(REGISTRY)/$(APP)-$(ARCH):$(BUILD_VERSION)
 
 mod-update:
 	go mod tidy
 	go mod vendor
 
-# ------------------------------------------------------------------- Run
+# ------------------------------------------------------------------- Service
+service-deploy:
+	kubectl apply -f ./zarf/k8s/basic/go_service.yaml
+
+service-delete:
+	kubectl delete -f ./zarf/k8s/basic/go_service.yaml
 
 # ------------------------------------------------------------------- K3D
 k3d-create:
