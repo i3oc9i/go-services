@@ -10,11 +10,11 @@ import (
 var build = "develop"
 
 func doing_stuff() {
-	log.Println("my-service: doing some stuff")
+	log.Println("go-service: doing some stuff")
 }
 
 func main() {
-	log.Println("my-service: started", build)
+	log.Println("go-service: started", build)
 	defer log.Println("my-service: ended")
 
 	shutdown := make(chan os.Signal, 1)
@@ -25,5 +25,5 @@ func main() {
 
 	<-shutdown
 
-	log.Println("my-service: stopped")
+	log.Println("go-service: stopped")
 }

@@ -23,4 +23,6 @@ spec:
       containers:
       - name: go-service
         image: registry.local:5000/go-service-amd64:1.0.0-alpha
+        imagePullPolicy: Always
+
         

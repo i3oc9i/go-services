@@ -1,30 +1,33 @@
-FROM golang:1.18 as build-go_service
+FROM golang:1.18 as build-service
 ENV CGO_ENABLED 0
+ARG SERVICE_NAME
 ARG BUILD_VERSION
 
-COPY . /go_service
+COPY . /service
 
-WORKDIR /go_service
-RUN go build --ldflags "-X main.build=$(BUILD_VERSION)"
+WORKDIR /service
+RUN go build -o ${SERVICE_NAME} --ldflags "-X main.build=$(BUILD_VERSION)"
 
 
 FROM alpine:3.15
+ARG SERVICE_NAME
 ARG BUILD_VERSION
 ARG BUILD_DATE
 
 RUN addgroup -g 1000 -S service && \
-    adduser -u 1000 -h /go_service -G service -S service
+    adduser -u 1000 -h /service -G service -S service
 
-COPY --from=build-go_service /go_service/go_service /go_service/go_service 
+COPY --from=build-service /service/${SERVICE_NAME} /service/${SERVICE_NAME} 
 
-WORKDIR /go_service
+WORKDIR /service
 USER service
-CMD ["./go_service"]
+ENV SERVICE ${SERVICE_NAME}
+CMD ./${SERVICE}
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.title="go_service" \
+      org.opencontainers.image.title="${SERVICE_NAME}" \
       org.opencontainers.image.authors="i3oc9i <i3oc9i@gmail.com>" \
-      org.opencontainers.image.source="https://github.com/i3oc9i/go_service/" \
+      org.opencontainers.image.source="https://github.com/i3oc9i/${SERVICE_NAME}/" \
       org.opencontainers.image.revision="${BUILD_VERSION}" \
       org.opencontainers.image.vendor="i3oc9i"
 
