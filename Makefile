@@ -39,7 +39,7 @@ deps-clean:
 service-deploy:
 	kubectl apply -f ./zarf/k8s/basic/go_service.yaml
 
-service-update: build-service:
+service-update: build-service
 	kubectl -n service-system rollout restart deployment go-service
 
 service-delete:

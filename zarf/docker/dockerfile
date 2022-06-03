@@ -11,8 +11,14 @@ RUN go build --ldflags "-X main.build=$(BUILD_VERSION)"
 FROM alpine:3.15
 ARG BUILD_VERSION
 ARG BUILD_DATE
+
+RUN addgroup -g 1000 -S service && \
+    adduser -u 1000 -h /go_service -G service -S service
+
 COPY --from=build-go_service /go_service/go_service /go_service/go_service 
+
 WORKDIR /go_service
+USER service
 CMD ["./go_service"]
 
 LABEL org.opencontainers.image.created="${BUILD_DATE}" \
