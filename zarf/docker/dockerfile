@@ -6,7 +6,7 @@ ARG BUILD_VERSION
 COPY . /service
 
 WORKDIR /service
-RUN go build -o ${SERVICE_NAME} --ldflags "-X main.build=$(BUILD_VERSION)"
+RUN go build -o ${SERVICE_NAME} --ldflags "-X main.build=${BUILD_VERSION}"
 
 
 FROM alpine:3.15

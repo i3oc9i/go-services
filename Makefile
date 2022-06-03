@@ -12,7 +12,10 @@ BUILD_DATE    := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 all: help
 
 # ------------------------------------------------------------------- Build
-build-service:
+build:
+	go build -o ${SERVICE} --ldflags "-X main.build=$(BUILD_VERSION)"
+
+build-image:
 	docker build \
     	-f zarf/docker/dockerfile \
     	-t $(SERVICE)-$(ARCH):$(BUILD_VERSION) \
@@ -38,17 +41,17 @@ deps-clean:
 
 # ------------------------------------------------------------------- Service
 service-deploy:
-	kubectl apply -f ./zarf/k8s/basic/$(SERVICE).yaml
+	kustomize build ./zarf/k8s/k3d/go-service | kubectl apply -f -
 
-service-update: build-service
+service-update:
 	kubectl -n service-system rollout restart deployment $(SERVICE)
 
 service-delete:
-	kubectl delete -f ./zarf/k8s/basic/$(SERVICE).yaml
+	kustomize build ./zarf/k8s/k3d/go-service | kubectl delete -f -
 
 # ------------------------------------------------------------------- K3D
 k3d-setup:
-	k3d cluster create $(KLUSTER_ID) --config ./zarf/k3d/config.yaml
+	k3d cluster create $(KLUSTER_ID) --config ./zarf/infra/k3d/config.yaml
 	kubectl cluster-info
 	kubectl get node -o wide
 
@@ -66,12 +69,13 @@ clean:
 	go clean
 
 clobber: clean k3d-destroy
+	go clean -modcache
 	docker system prune --force
 
 # ------------------------------------------------------------------- Help
 help:
 	@echo "make k3d-create     - create the local k3d kluster and the local registry."
-	@echo "make build-service  - build the service image and push it in the local registry."
+	@echo "make build-image    - build the service image and push it in the local registry."
 	@echo "make service-deploy - deploy the service in the local k3d kluster."
 	@echo "make service-update - rollout the running service."
 	@echo "make clobber        - make clean and delete the local k3d kluster and the local registry."
