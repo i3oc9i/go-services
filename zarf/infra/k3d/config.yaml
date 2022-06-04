@@ -2,7 +2,7 @@ apiVersion: k3d.io/v1alpha4
 kind: Simple 
 
 metadata:
-  name: local 
+  name: kenobi
 
 #image: rancher/k3s:v1.22.7-k3s1
 image: rancher/k3s:v1.23.6-k3s1
@@ -11,8 +11,8 @@ servers: 1
 agents: 1  
 
 kubeAPI: 
-  host: "k3d.local" 
-  hostIP: "127.0.0.1" 
+  host: "k3d-kenobi.local" 
+  hostIP: "127.0.0.7" 
   hostPort: "6445"
 
 hostAliases: 
@@ -22,12 +22,12 @@ hostAliases:
 
 registries: 
   create: 
-    name: registry.local
-    host: "127.0.0.1"
+    name: registry-kenobi.local
+    host: "127.0.0.7"
     hostPort: "5000"
 
 ports:
-  - port: 8080:80 
+  - port: 8007:80 
     nodeFilters:
       - loadbalancer
 

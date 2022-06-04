@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
-KLUSTER_ID  = local
-REGISTRY_ID = registry.local:5000
+KLUSTER_ID  = kenobi
+REGISTRY_ID = registry-kenobi.local:5000
 
 SERVICE = go-service
 ARCH    = amd64
@@ -52,6 +52,7 @@ service-delete:
 # ------------------------------------------------------------------- K3D
 k3d-setup:
 	k3d cluster create $(KLUSTER_ID) --config ./zarf/infra/k3d/config.yaml
+	k3d kubeconfig get $(KLUSTER_ID) > .kube-config
 	kubectl cluster-info
 	kubectl get node -o wide
 
