@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 KLUSTER_ID  = kenobi
-REGISTRY_ID = registry-kenobi.local:5000
+REGISTRY_ID = registry.kenobi.local:5000
 
 SERVICE = go-service
 ARCH    = amd64
@@ -69,9 +69,7 @@ k3d-destroy:
 clean:
 	go clean
 
-clobber: clean k3d-destroy
-	go clean -modcache
-	docker system prune --force
+clobber: clean deps-clean k3d-destroy
 
 # ------------------------------------------------------------------- Help
 help:

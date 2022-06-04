@@ -11,7 +11,7 @@ servers: 1
 agents: 1  
 
 kubeAPI: 
-  host: "k3d-kenobi.local" 
+  host: "k3d.kenobi.local" 
   hostIP: "127.0.0.7" 
   hostPort: "6445"
 
@@ -22,7 +22,7 @@ hostAliases:
 
 registries: 
   create: 
-    name: registry-kenobi.local
+    name: registry.kenobi.local
     host: "127.0.0.7"
     hostPort: "5000"
 
