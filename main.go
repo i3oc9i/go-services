@@ -7,7 +7,7 @@ import (
 	"runtime"
 	"syscall"
 
-	"go.uber.org/automaxprocs/maxprocs"
+	_ "go.uber.org/automaxprocs" // set GOMAXPROCS based on resource CPU limit
 )
 
 var build = "develop"
@@ -17,13 +17,6 @@ func doingStuff() {
 }
 
 func main() {
-
-	// Set the correct number of threads for the service
-	// based on what is available by the machine or quotas.
-	if _, err := maxprocs.Set(); err != nil {
-		log.Fatalln("go-service: %w.\n", err)
-	}
-
 	nOfCPU := runtime.GOMAXPROCS(0)
 
 	log.Printf("go-service: started - build[%s] CPU[%d].\n", build, nOfCPU)
