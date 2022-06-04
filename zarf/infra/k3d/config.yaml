@@ -4,7 +4,8 @@ kind: Simple
 metadata:
   name: local 
 
-image: rancher/k3s:v1.22.7-k3s1
+#image: rancher/k3s:v1.22.7-k3s1
+image: rancher/k3s:v1.23.6-k3s1
 
 servers: 1 
 agents: 1  
