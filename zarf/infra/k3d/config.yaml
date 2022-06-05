@@ -12,8 +12,8 @@ agents: 1
 
 kubeAPI: 
   host: "k3d.kenobi.local" 
-  hostIP: "127.0.0.7" 
-  hostPort: "6445"
+  hostIP: "127.3.0.2" 
+  hostPort: "443"
 
 hostAliases: 
   - ip: 1.2.3.4
@@ -23,11 +23,14 @@ hostAliases:
 registries: 
   create: 
     name: registry.kenobi.local
-    host: "127.0.0.7"
+    host: "127.3.0.3"
     hostPort: "5000"
 
 ports:
-  - port: 8007:80 
+  - port: 127.3.0.1:80:80 
+    nodeFilters:
+      - loadbalancer
+  - port: 127.3.0.1:443:443
     nodeFilters:
       - loadbalancer
 

@@ -1,7 +1,9 @@
 SHELL := /bin/bash
 
-KLUSTER_ID  = kenobi
-REGISTRY_ID = registry.kenobi.local:5000
+KLUSTER_NAME  = kenobi
+
+KLUSTER_URL  = k3d.kenobi.local
+REGISTRY_URL = registry.kenobi.local:5000
 
 SERVICE = go-service
 ARCH    = amd64
@@ -17,14 +19,14 @@ build:
 
 build-image:
 	docker build \
-    	-f zarf/docker/dockerfile \
-    	-t $(SERVICE)-$(ARCH):$(BUILD_VERSION) \
-		--build-arg SERVICE_NAME=$(SERVICE) \
-    	--build-arg BUILD_VERSION=$(BUILD_VERSION) \
-    	--build-arg BUILD_DATE=$(BUILD_DATE) \
-		.
-	docker tag $(SERVICE)-$(ARCH):$(BUILD_VERSION) $(REGISTRY_ID)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
-	docker push $(REGISTRY_ID)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
+      -f zarf/docker/dockerfile \
+      -t $(SERVICE)-$(ARCH):$(BUILD_VERSION) \
+	  --build-arg SERVICE_NAME=$(SERVICE) \
+      --build-arg BUILD_VERSION=$(BUILD_VERSION) \
+      --build-arg BUILD_DATE=$(BUILD_DATE) \
+	  .
+	docker tag $(SERVICE)-$(ARCH):$(BUILD_VERSION) $(REGISTRY_URL)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
+	docker push $(REGISTRY_URL)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
 
 # ------------------------------------------------------------------- Dependencies
 deps-update:
@@ -51,19 +53,19 @@ service-delete:
 
 # ------------------------------------------------------------------- K3D
 k3d-setup:
-	k3d cluster create $(KLUSTER_ID) --config ./zarf/infra/k3d/config.yaml
-	k3d kubeconfig get $(KLUSTER_ID) > .kube-config
+	k3d cluster create $(KLUSTER_NAME) --config ./zarf/infra/k3d/config.yaml
+	k3d kubeconfig get $(KLUSTER_NAME) > .kube-config
 	kubectl cluster-info
 	kubectl get node -o wide
 
 k3d-start:
-	k3d cluster start $(KLUSTER_ID) 
+	k3d cluster start $(KLUSTER_NAME) 
 
 k3d-stop:
-	k3d cluster stop $(KLUSTER_ID) 
+	k3d cluster stop $(KLUSTER_NAME) 
 
 k3d-destroy:
-	k3d cluster delete $(KLUSTER_ID) 
+	k3d cluster delete $(KLUSTER_NAME) 
 
 # ------------------------------------------------------------------- Clean
 clean:
