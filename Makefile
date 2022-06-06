@@ -43,7 +43,7 @@ services-deploy:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl apply -f -
 
 services-update:
-	kubectl -n sales-system rollout restart deployment sales-system
+	kubectl -n sales-system rollout restart deployment sales
 
 services-delete:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl delete -f -

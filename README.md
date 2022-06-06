@@ -1,6 +1,6 @@
 # go-services
 
-Learning how to code services in GO and deploy it in Kubernetes.
+Learning how to code services in GO and deploy them in Kubernetes.
 
 add the following lines to `/etc/hosts`
 ```
