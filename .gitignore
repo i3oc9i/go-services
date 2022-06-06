@@ -1,6 +1,4 @@
 .kube-config
 
-go-service
-
-
+app/service/sales/sales
 

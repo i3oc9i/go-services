@@ -13,14 +13,14 @@ import (
 var build = "develop"
 
 func doingStuff() {
-	log.Println("go-service: doing some stuff")
+	log.Println("sales: doing some stuff")
 }
 
 func main() {
 	nOfCPU := runtime.GOMAXPROCS(0)
 
-	log.Printf("go-service: started - build[%s] CPU[%d].\n", build, nOfCPU)
-	defer log.Println("go-service: terminated.")
+	log.Printf("sales: started - build[%s] CPU[%d].\n", build, nOfCPU)
+	defer log.Println("sales: terminated.")
 
 	shutdown := make(chan os.Signal, 1)
 
@@ -30,5 +30,5 @@ func main() {
 
 	<-shutdown
 
-	log.Println("go-service: stopped.")
+	log.Println("sales: stopped.")
 }

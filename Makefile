@@ -1,32 +1,29 @@
 SHELL := /bin/bash
 
-KLUSTER_NAME  = kenobi
+KLUSTER_NAME  := kenobi
 
-KLUSTER_URL  = k3d.kenobi.local
-REGISTRY_URL = registry.kenobi.local:5000
+KLUSTER_URL  := k3d.kenobi.local
+REGISTRY_URL := registry.kenobi.local:5000
 
-SERVICE = go-service
-ARCH    = amd64
-
-BUILD_VERSION := $(shell cat ./VERSION)
-BUILD_DATE    := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+ARCH       := amd64
+VERSION    := $(shell head -1 VERSION)
+BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 all: help
 
 # ------------------------------------------------------------------- Build
-build:
-	go build -o ${SERVICE} --ldflags "-X main.build=$(BUILD_VERSION)"
+build: build-sales
 
-build-image:
+build-sales:
 	docker build \
-      -f zarf/docker/dockerfile \
-      -t $(SERVICE)-$(ARCH):$(BUILD_VERSION) \
-	  --build-arg SERVICE_NAME=$(SERVICE) \
-      --build-arg BUILD_VERSION=$(BUILD_VERSION) \
+      -f zarf/docker/dockerfile.sales \
+      -t sales-$(ARCH):$(VERSION) \
+      --build-arg BUILD_REF=$(VERSION) \
       --build-arg BUILD_DATE=$(BUILD_DATE) \
 	  .
-	docker tag $(SERVICE)-$(ARCH):$(BUILD_VERSION) $(REGISTRY_URL)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
-	docker push $(REGISTRY_URL)/$(SERVICE)-$(ARCH):$(BUILD_VERSION)
+	docker tag sales-$(ARCH):$(VERSION) $(REGISTRY_URL)/sales-$(ARCH):$(VERSION)
+	docker push $(REGISTRY_URL)/sales-$(ARCH):$(VERSION)
+	cd zarf/k8s/k3d/sales-system; kustomize edit set image sales-image=$(REGISTRY_URL)/sales-$(ARCH):$(VERSION)
 
 # ------------------------------------------------------------------- Dependencies
 deps-update:
@@ -41,18 +38,18 @@ deps-upgrade:
 deps-clean:
 	go clean -modcache
 
-# ------------------------------------------------------------------- Service
-service-deploy:
-	kustomize build ./zarf/k8s/k3d/go-service | kubectl apply -f -
+# ------------------------------------------------------------------- Services
+services-deploy:
+	kustomize build zarf/k8s/k3d/sales-system | kubectl apply -f -
 
-service-update:
-	kubectl -n service-system rollout restart deployment $(SERVICE)
+services-update:
+	kubectl -n sales-system rollout restart deployment sales-system
 
-service-delete:
-	kustomize build ./zarf/k8s/k3d/go-service | kubectl delete -f -
+services-delete:
+	kustomize build zarf/k8s/k3d/sales-system | kubectl delete -f -
 
 # ------------------------------------------------------------------- K3D
-k3d-setup:
+k3d-up:
 	k3d cluster create $(KLUSTER_NAME) --config ./zarf/infra/k3d/config.yaml
 	k3d kubeconfig get $(KLUSTER_NAME) > .kube-config
 	kubectl cluster-info
@@ -64,19 +61,19 @@ k3d-start:
 k3d-stop:
 	k3d cluster stop $(KLUSTER_NAME) 
 
-k3d-destroy:
+k3d-down:
 	k3d cluster delete $(KLUSTER_NAME) 
 
 # ------------------------------------------------------------------- Clean
 clean:
 	go clean
 
-clobber: clean deps-clean k3d-destroy
+clobber: clean deps-clean k3d-down
 
 # ------------------------------------------------------------------- Help
 help:
-	@echo "make k3d-create     - create the local k3d kluster and the local registry."
-	@echo "make build-image    - build the service image and push it in the local registry."
-	@echo "make service-deploy - deploy the service in the local k3d kluster."
-	@echo "make service-update - rollout the running service."
-	@echo "make clobber        - make clean and delete the local k3d kluster and the local registry."
+	@echo "make k3d-up          - create the local k3d kluster and the local registry."
+	@echo "make build           - build the images of all the services and push them in the local registry."
+	@echo "make services-deploy - deploy all the services in the local k3d kluster."
+	@echo "make services-update - rollout all the running services."
+	@echo "make clobber         - clean and delete the local k3d kluster and the local registry."

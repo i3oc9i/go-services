@@ -1,0 +1,13 @@
+.git
+.gitignore
+.dockerignore
+.envrc
+.kube-config
+
+zarf/
+
+VERSION
+LICENSE
+README.md
+
+Makefile
