@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.uber.org/automaxprocs/maxprocs"
 )
 
 var build = "develop"
@@ -44,6 +47,12 @@ func newLogger(service string) (*zap.SugaredLogger, error) {
 }
 
 func run(log *zap.SugaredLogger) error {
+
+	if _, err := maxprocs.Set(0); err != nil {
+		return fmt.Errorf("maxprocs: %w", err)
+	}
+
+	log.Infow("startup", "GOMAXPROCS", runtime.GOMAXPROCS())
 
 	return nil
 }
