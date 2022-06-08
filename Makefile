@@ -12,9 +12,12 @@ BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 all: help
 
 # ------------------------------------------------------------------- Build
-build: build-sales
+build:
+	go build --ldflags "-X main.build=$(VERSION)" ./...
 
-build-sales:
+build-images: build-image-sales
+
+build-image-sales:
 	docker build \
       -f zarf/docker/dockerfile.sales \
       -t sales-$(ARCH):$(VERSION) \
@@ -66,7 +69,7 @@ k3d-down:
 
 # ------------------------------------------------------------------- Clean
 clean:
-	go clean
+	go clean ./...
 
 clobber: clean deps-clean k3d-down
 

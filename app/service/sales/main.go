@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -9,7 +10,13 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.uber.org/automaxprocs/maxprocs"
+
+	"github.com/ardanlabs/conf"
 )
+
+/* TODO
+- Need to figure out timeouts for the http service.
+*/
 
 var build = "develop"
 
@@ -22,7 +29,7 @@ func main() {
 	}
 	defer log.Sync()
 
-	if err := run(log); err != nil {
+	if err := setup(log); err != nil {
 		log.Errorw("startup", "ERROR", err)
 		os.Exit(1)
 	}
@@ -46,13 +53,55 @@ func newLogger(service string) (*zap.SugaredLogger, error) {
 	return log.Sugar(), nil
 }
 
-func run(log *zap.SugaredLogger) error {
+func setup(log *zap.SugaredLogger) error {
 
-	if _, err := maxprocs.Set(0); err != nil {
+	// -------------------------------------------------------------- GOMAXPROCS
+	// Set the correct number of threads based on how many CPUs are available
+	// either by the machine or quotas.
+
+	opt := maxprocs.Logger(log.Infof)
+
+	if _, err := maxprocs.Set(opt); err != nil {
 		return fmt.Errorf("maxprocs: %w", err)
 	}
 
-	log.Infow("startup", "GOMAXPROCS", runtime.GOMAXPROCS())
+	log.Infow("startup", "GOMAXPROCS", runtime.GOMAXPROCS(0))
+
+	// -------------------------------------------------------------- Configuration
+	cfg := struct {
+		conf.Version
+		Web struct {
+			APIHost         string `conf:"default:0.0.0.0:3000"`
+			DebugHost       string `conf:"default:0.0.0.0:4000"`
+			ReadTimeout     string `conf:"default:5s"`
+			WriteTimeout    string `conf:"default:10s"`
+			IdleTimeout     string `conf:"default:120s"`
+			ShutdownTimeout string `conf:"default:20s"`
+		}
+	}{
+		Version: conf.Version{
+			SVN:  build,
+			Desc: "Sales services",
+		},
+	}
+
+	if help, err := conf.ParseOSArgs("SALES", &cfg); err != nil {
+		if errors.Is(err, conf.ErrHelpWanted) {
+			fmt.Println(help)
+			return nil
+		}
+		return fmt.Errorf("parsing config: %w", err)
+	}
+
+	// -------------------------------------------------------------- App Starting
+	log.Infow("starting service", "version", build)
+	defer log.Infow("shutdown complete")
+
+	out, err := conf.String(&cfg)
+	if err != nil {
+		return fmt.Errorf("generating config for the output: %w", err)
+	}
+	log.Infow("startup", "config", out)
 
 	return nil
 }

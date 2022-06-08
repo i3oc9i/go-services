@@ -3,6 +3,7 @@ module github.com/i3oc9i/go-service
 go 1.18
 
 require (
+	github.com/ardanlabs/conf v1.5.0
 	go.uber.org/automaxprocs v1.5.1
 	go.uber.org/zap v1.21.0
 )
