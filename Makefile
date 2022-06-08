@@ -13,7 +13,8 @@ all: help
 
 # ------------------------------------------------------------------- Build
 build:
-	go build --ldflags "-X main.build=$(VERSION)" ./...
+	cd app/service/sales; go build --ldflags "-X main.build=$(VERSION)"      
+	cd app/tools/jlogfmt; go build 
 
 build-images: build-image-sales
 
