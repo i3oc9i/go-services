@@ -9,7 +9,7 @@ ARCH       := amd64
 VERSION    := $(shell head -1 VERSION)
 BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# =================================================================== Testing Notes
+# ------------------------------------------------------------------- Notes
 #
 # Access metrics directly (4000) 
 # go install github.com/divan/expvarmon@latest
@@ -49,27 +49,33 @@ deps-clean:
 	go clean -modcache
 
 # ------------------------------------------------------------------- Services
-services-deploy:
+svc-deploy:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl apply -f -
 
-services-update:
+svc-restart:
 	kubectl -n sales-system rollout restart deployment sales
 
-services-delete:
+svc-delete:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl delete -f -
+
+svc-logs:
+	kubectl -n sales-system logs -l app=sales --all-containers=true -f --tail=100 | go run app/tools/jlogfmt/main.go
 
 # ------------------------------------------------------------------- K3D
 k3d-up:
 	k3d cluster create $(KLUSTER_NAME) --config ./zarf/infra/k3d/config.yaml
 	k3d kubeconfig get $(KLUSTER_NAME) > .kube-config
-	kubectl cluster-info
-	kubectl get node -o wide
 
 k3d-start:
 	k3d cluster start $(KLUSTER_NAME) 
 
 k3d-stop:
 	k3d cluster stop $(KLUSTER_NAME) 
+
+k3d-info:
+	kubectl cluster-info
+	kubectl get node -o wide
+	kubectl get svc -A -o wide 
 
 k3d-down:
 	k3d cluster delete $(KLUSTER_NAME) 
