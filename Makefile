@@ -9,6 +9,12 @@ ARCH       := amd64
 VERSION    := $(shell head -1 VERSION)
 BUILD_DATE := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+# =================================================================== Testing Notes
+#
+# Access metrics directly (4000) 
+# go install github.com/divan/expvarmon@latest
+# expvarmon -ports="kenobi.local:4000" -vars="build,requests,goroutines,errors,panics,mem:memstats.Alloc"
+
 all: help
 
 # ------------------------------------------------------------------- Build

@@ -2,16 +2,19 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"fmt"
+	"net/http"
 	"os"
+	"os/signal"
 	"runtime"
-
-	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
-
-	"go.uber.org/automaxprocs/maxprocs"
+	"syscall"
 
 	"github.com/ardanlabs/conf"
+	"github.com/i3oc9i/go-service/app/service/sales/handlers"
+	"go.uber.org/automaxprocs/maxprocs"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 /* TODO
@@ -103,5 +106,28 @@ func setup(log *zap.SugaredLogger) error {
 	}
 	log.Infow("startup", "config", out)
 
+	expvar.NewString("build").Set(build)
+
+	// -------------------------------------------------------------- Start Debug Service
+	log.Infow("startup", "status", "debug router started", "host", cfg.Web.DebugHost)
+
+	// The Debug function returns a mux to listen and serve on for all the debug
+	// related endpoints. This includes the standard library endpoints.
+	debugMux := handlers.DebugStandardLibraryMux()
+
+	// Start the service listening for debug requests.
+	// Not concerned with shutting this down with load shedding.
+	go func() {
+		if err := http.ListenAndServe(cfg.Web.DebugHost, debugMux); err != nil {
+			log.Errorw("shutdown", "status", "debug router closed", "host", cfg.Web.DebugHost, "ERROR", err)
+		}
+	}()
+
+	// -------------------------------------------------------------- Gracefully Shutdown
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
+	<-shutdown
+
 	return nil
+
 }

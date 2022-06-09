@@ -33,7 +33,13 @@ ports:
   - port: 127.3.0.1:443:443
     nodeFilters:
       - loadbalancer
-
+  - port: 127.3.0.1:3000:3000
+    nodeFilters:
+      - loadbalancer
+  - port: 127.3.0.1:4000:4000
+    nodeFilters:
+      - loadbalancer
+      
 env:
   - envVar: NODE_TYPE=agent
     nodeFilters:

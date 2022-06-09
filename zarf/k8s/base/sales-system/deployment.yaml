@@ -20,5 +20,9 @@ spec:
       - name: sales
         image: sales-image
         imagePullPolicy: Always
+        ports:
+        - name: sales-api
+          containerPort: 3000
+        - name: sales-api-debug
+          containerPort: 4000
 
-        
