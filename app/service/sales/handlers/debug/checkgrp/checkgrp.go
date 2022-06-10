@@ -15,6 +15,25 @@ type Handlers struct {
 	Log   *zap.SugaredLogger
 }
 
+// Sratup checks if the database is ready and if not will return a 500 status.
+// Do not respond by just returning an error because further up in the call
+// stack it will interpret that as a non-trusted error.
+func (h Handlers) Startup(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Status string `json:"status"`
+	}{
+		Status: "OK",
+	}
+
+	statusCode := http.StatusOK
+
+	if err := response(w, statusCode, data); err != nil {
+		h.Log.Errorw("readiness", "ERROR", err)
+	}
+
+	h.Log.Infow("readiness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
+}
+
 // Readiness checks if the database is ready and if not will return a 500 status.
 // Do not respond by just returning an error because further up in the call
 // stack it will interpret that as a non-trusted error.

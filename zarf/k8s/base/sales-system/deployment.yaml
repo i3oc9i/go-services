@@ -25,6 +25,12 @@ spec:
           containerPort: 3000
         - name: sales-api-debug
           containerPort: 4000
+        startupProbe: # startup probes mark the service has finished startup.
+          httpGet:
+            path: /debug/startup
+            port: 4000
+          periodSeconds: 10
+          failureThreshold: 10
         readinessProbe: # readiness probes mark the service available to accept traffic.
           httpGet:
             path: /debug/readiness

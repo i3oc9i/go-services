@@ -7,11 +7,13 @@ import (
 	"net/http/pprof"
 	"os"
 
-	"github.com/dimfeld/httptreemux/v5"
 	"github.com/i3oc9i/go-service/app/service/sales/handlers/debug/checkgrp"
 	"github.com/i3oc9i/go-service/app/service/sales/handlers/v1/testgrp"
+	"github.com/i3oc9i/go-service/foundation/web"
 	"go.uber.org/zap"
 )
+
+// ------------------------------------------------------------------ DebugMux
 
 // DebugMux registers all the debug standard library routes and then custom debug
 // application routes for the service. This bypassing the use of the DefaultServerMux.
@@ -29,15 +31,18 @@ func DebugMux(build string, log *zap.SugaredLogger) http.Handler {
 	mux.Handle("/debug/vars", expvar.Handler())
 
 	// Register debug check endpoints.
-	h := checkgrp.Handlers{
+	cgh := checkgrp.Handlers{
 		Build: build,
 		Log:   log,
 	}
-	mux.HandleFunc("/debug/readiness", h.Readiness)
-	mux.HandleFunc("/debug/liveness", h.Liveness)
+	mux.HandleFunc("/debug/startup", cgh.Startup)
+	mux.HandleFunc("/debug/readiness", cgh.Readiness)
+	mux.HandleFunc("/debug/liveness", cgh.Liveness)
 
 	return mux
 }
+
+// ------------------------------------------------------------------ APIMux
 
 // APIMuxConfig contains all the mandatory systems required by handlers.
 type APIMuxConfig struct {
@@ -45,15 +50,23 @@ type APIMuxConfig struct {
 	Log      *zap.SugaredLogger
 }
 
-// APIMux constructs a http.Handler with all application routes defined.
-func APIMux(cfg APIMuxConfig) http.Handler {
-	mux := httptreemux.NewContextMux()
+// APIMux constructs the web.App with all application routes defined.
+func APIMux(cfg APIMuxConfig) *web.App {
+	app := web.NewApp(cfg.Shutdown)
 
-	h := testgrp.Handlers{
+	// Load the routes for the different versipon of the API.
+	v1(app, cfg)
+
+	return app
+}
+
+// v1 binds all the version 1 routes.
+func v1(app *web.App, cfg APIMuxConfig) {
+	const version = "v1"
+
+	tgh := testgrp.Handlers{
 		Log: cfg.Log,
 	}
 
-	mux.Handle(http.MethodGet, "/v1/test", h.Test)
-
-	return mux
+	app.Handle(http.MethodGet, version, "/test", tgh.Test)
 }

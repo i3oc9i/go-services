@@ -62,6 +62,9 @@ svc-update:
 svc-delete:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl delete -f -
 
+svc-status:
+	kubectl -n sales-system get pods -o wide --watch 
+
 svc-logs:
 	kubectl -n sales-system logs -l app=sales --all-containers=true -f --tail=100 | go run app/tools/jlogfmt/main.go
 
