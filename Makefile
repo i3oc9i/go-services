@@ -92,6 +92,7 @@ clean:
 	go clean ./...
 
 clobber: clean deps-clean k3d-down
+	docker system prune --force
 
 # ------------------------------------------------------------------- Help
 help:
