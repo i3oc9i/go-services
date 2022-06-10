@@ -65,8 +65,8 @@ func main() {
 		}
 
 		// if statusCode key exist then we print jsut next.
-		if val, ok := m["statusCode"]; ok {
-			b.WriteString(fmt.Sprintf("statusCode[%v]: ", val))
+		if val, ok := m["statuscode"]; ok {
+			b.WriteString(fmt.Sprintf("statuscode[%v]: ", val))
 		}
 
 		// Sort the keys of the map into a list
@@ -80,7 +80,7 @@ func main() {
 		// Add the rest of the keys ignoring the ones we already added.
 		for _, k := range keys {
 			switch k {
-			case "service", "ts", "level", "traceid", "caller", "msg", "status", "statusCode":
+			case "service", "ts", "level", "traceid", "caller", "msg", "status", "statuscode":
 				continue
 			}
 
