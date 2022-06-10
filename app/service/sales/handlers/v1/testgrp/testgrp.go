@@ -2,9 +2,10 @@
 package testgrp
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
 
+	"github.com/i3oc9i/go-service/foundation/web"
 	"go.uber.org/zap"
 )
 
@@ -14,41 +15,14 @@ type Handlers struct {
 }
 
 // Test handler is for development.
-func (h Handlers) Test(w http.ResponseWriter, r *http.Request) {
+func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Request) error {
 	data := struct {
 		Status string `json:"status"`
 	}{
 		Status: "Ok",
 	}
 
-	statusCode := http.StatusOK
+	h.Log.Infow("test", "statusCode", http.StatusOK, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
 
-	if err := response(w, statusCode, data); err != nil {
-		h.Log.Errorw("test", "ERROR", err)
-	}
-
-	h.Log.Infow("test", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
-}
-
-// response writes well formed HTTP response.
-func response(w http.ResponseWriter, statusCode int, data any) error {
-
-	// Convert the response value to JSON.
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	// Set the content type and headers once we know marshaling has succeeded.
-	w.Header().Set("Content-Type", "application/json")
-
-	// Write the status code to the response.
-	w.WriteHeader(statusCode)
-
-	// Send the result back to the client.
-	if _, err := w.Write(jsonData); err != nil {
-		return err
-	}
-
-	return nil
+	return web.RespondJSON(ctx, w, data, http.StatusOK)
 }
