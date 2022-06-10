@@ -31,7 +31,7 @@ func (h Handlers) Startup(w http.ResponseWriter, r *http.Request) {
 		h.Log.Errorw("readiness", "ERROR", err)
 	}
 
-	h.Log.Infow("readiness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
+	h.Log.Infow("readiness", "statuscode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
 }
 
 // Readiness checks if the database is ready and if not will return a 500 status.
@@ -50,7 +50,7 @@ func (h Handlers) Readiness(w http.ResponseWriter, r *http.Request) {
 		h.Log.Errorw("readiness", "ERROR", err)
 	}
 
-	h.Log.Infow("readiness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
+	h.Log.Infow("readiness", "statuscode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
 }
 
 // Liveness returns simple status info if the service is alive.
@@ -80,7 +80,7 @@ func (h Handlers) Liveness(w http.ResponseWriter, r *http.Request) {
 		h.Log.Errorw("liveness", "ERROR", err)
 	}
 
-	h.Log.Infow("liveness", "statusCode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
+	h.Log.Infow("liveness", "statuscode", statusCode, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
 }
 
 // response writes well formed HTTP response.
