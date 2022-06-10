@@ -35,6 +35,10 @@ build-image-sales:
 	docker push $(REGISTRY_URL)/sales-$(ARCH):$(VERSION)
 	cd zarf/k8s/k3d/sales-system; kustomize edit set image sales-image=$(REGISTRY_URL)/sales-$(ARCH):$(VERSION)
 
+
+build-apply:  build-images svc-apply
+build-update: build-images svc-update
+
 # ------------------------------------------------------------------- Dependencies
 deps-update:
 	go mod tidy
@@ -49,10 +53,10 @@ deps-clean:
 	go clean -modcache
 
 # ------------------------------------------------------------------- Services
-svc-deploy:
+svc-apply:
 	kustomize build zarf/k8s/k3d/sales-system | kubectl apply -f -
 
-svc-restart:
+svc-update:
 	kubectl -n sales-system rollout restart deployment sales
 
 svc-delete:

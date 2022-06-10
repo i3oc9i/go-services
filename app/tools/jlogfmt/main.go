@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -47,8 +48,7 @@ func main() {
 			traceID = fmt.Sprintf("%v", v)
 		}
 
-		// Build out the know portions of the log in the order
-		// I want them in.
+		// Build out the know portions of the log in the order I want them in.
 		b.Reset()
 		b.WriteString(fmt.Sprintf("%s: %s: %s: %s: %s: %s: ",
 			m["service"],
@@ -59,20 +59,25 @@ func main() {
 			m["msg"],
 		))
 
-		// Add the rest of the keys ignoring the ones we already
-		// added for the log.
-		for k, v := range m {
+		// Sort the keys of the map into a list
+		keys := make([]string, 0, len(m))
+
+		for k := range m {
+			keys = append(keys, k)
+		}
+		sort.Strings(keys)
+
+		// Add the rest of the keys ignoring the ones we already added.
+		for _, k := range keys {
 			switch k {
 			case "service", "ts", "level", "traceid", "caller", "msg":
 				continue
 			}
 
-			// It's nice to see the key[value] in this format
-			// especially since map ordering is random.
-			b.WriteString(fmt.Sprintf("%s[%v]: ", k, v))
+			b.WriteString(fmt.Sprintf("%s[%v]: ", k, m[k]))
 		}
 
-		// Write the new log format, removing the last :
+		// Write the new log format, removing the last ':'
 		out := b.String()
 		fmt.Println(out[:len(out)-2])
 	}
