@@ -34,7 +34,7 @@ func main() {
 	}
 	defer log.Sync()
 
-	if err := setup(log); err != nil {
+	if err := run(log); err != nil {
 		log.Errorw("startup", "ERROR", err)
 		os.Exit(1)
 	}
@@ -58,7 +58,7 @@ func newLogger(service string) (*zap.SugaredLogger, error) {
 	return log.Sugar(), nil
 }
 
-func setup(log *zap.SugaredLogger) error {
+func run(log *zap.SugaredLogger) error {
 
 	// -------------------------------------------------------------- Configuration
 	cfg := struct {
@@ -130,11 +130,12 @@ func setup(log *zap.SugaredLogger) error {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGINT, syscall.SIGTERM)
 
-	// Construct the mux for the API calls.
-	apiMux := handlers.APIMux(handlers.APIMuxConfig{
+	apiCfg := handlers.APIMuxConfig{
 		Shutdown: shutdown,
 		Log:      log,
-	})
+	}
+	// Construct the mux for the API calls.
+	apiMux := handlers.APIMux(apiCfg)
 
 	// Construct a server to service the requests against the mux.
 	api := http.Server{

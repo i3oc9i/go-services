@@ -9,6 +9,7 @@ import (
 
 	"github.com/i3oc9i/go-service/app/service/sales/handlers/debug/checkgrp"
 	"github.com/i3oc9i/go-service/app/service/sales/handlers/v1/testgrp"
+	"github.com/i3oc9i/go-service/business/web/mid"
 	"github.com/i3oc9i/go-service/foundation/web"
 	"go.uber.org/zap"
 )
@@ -52,7 +53,10 @@ type APIMuxConfig struct {
 
 // APIMux constructs the web.App with all application routes defined.
 func APIMux(cfg APIMuxConfig) *web.App {
-	app := web.NewApp(cfg.Shutdown)
+	app := web.NewApp(
+		cfg.Shutdown,
+		mid.Logger(cfg.Log),
+	)
 
 	// Load the routes for the different versipon of the API.
 	v1(app, cfg)

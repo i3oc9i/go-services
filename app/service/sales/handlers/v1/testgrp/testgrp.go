@@ -22,7 +22,5 @@ func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Reque
 		Status: "Ok",
 	}
 
-	h.Log.Infow("test", "statusCode", http.StatusOK, "method", r.Method, "path", r.URL.Path, "remoteaddr", r.RemoteAddr)
-
 	return web.RespondJSON(ctx, w, data, http.StatusOK)
 }
